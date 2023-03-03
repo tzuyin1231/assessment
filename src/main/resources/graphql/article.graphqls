@@ -1,0 +1,15 @@
+extend type Query{
+    findAllArticles:[Article]
+}
+type Article{
+    articleId:ID!,
+    articleTitle:String!,
+    articleContent:String!,
+    status: String!,
+    createTime: String!,
+    updateTime: String,
+    user: User!
+}
+extend type Mutation {
+    addNewArticle(userId: Int, articleTitle: String!, articleContent: String!): Article!
+}

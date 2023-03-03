@@ -1,0 +1,14 @@
+type Query{
+    findAllUsers:[User]
+}
+type User{
+#    ! 表示not null
+    userId:ID!,
+    nickname:String!,
+    phone:String!,
+    password:String!,
+
+}
+type Mutation {
+    addNewUser(nickname: String!, phone: String, password: String):User!
+}

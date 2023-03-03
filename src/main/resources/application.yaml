@@ -1,0 +1,15 @@
+dbto:
+  datasource: driverClassName:org.postgresql.Driver
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:32770/assessment
+    username: postgres
+    password: postgres
+
+  #??GraphQL??
+  graphql:
+    graphiql:
+      enabled: true
+
+
+
