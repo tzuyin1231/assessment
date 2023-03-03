@@ -5,11 +5,11 @@ type Article{
     articleId:ID!,
     articleTitle:String!,
     articleContent:String!,
-    status: String!,
-    createTime: String!,
-    updateTime: String,
-    user: User!
+    status: String,
+    user: User,
+    createTime: String,
+    updateTime: String
 }
 extend type Mutation {
-    addNewArticle(userId: Int, articleTitle: String!, articleContent: String!): Article!
+    addNewArticle(userId: Int, articleTitle: String!, articleContent: String!): Article
 }

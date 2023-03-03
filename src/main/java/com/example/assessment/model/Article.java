@@ -2,7 +2,12 @@ package com.example.assessment.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.stereotype.Component;
+
+import java.sql.Date;
+import java.sql.Timestamp;
+import java.time.Instant;
 
 @Component
 @Data
@@ -10,26 +15,27 @@ import org.springframework.stereotype.Component;
 @Table(name = "articles")
 public class Article {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "articleId")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "article_id")
     private Integer articleId;
 
-    @Column(name = "userId")
+    @Column(name = "user_id")
     private Integer userId;
 
-    @Column(name = "articleTitle")
+    @Column(name = "article_title")
     private String articleTitle;
 
-    @Column(name = "articleContent")
+    @Column(name = "article_content")
     private String articleContent;
 
     @Column(name = "status")
     private String status;
 
-    @Column(name = "createTime")
-    private String createTime;
+    @Column(name = "create_time")
+    private Timestamp createTime;
 
-    @Column(name = "updateTime")
-    private String updateTime;
+    @Column(name = "update_time")
+    private Timestamp updateTime;
+
 
 }

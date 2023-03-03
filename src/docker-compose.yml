@@ -2,6 +2,7 @@ version: "3.7"
 services:
   db:
     image: postgres:13.2-alpine
+    container_name: assessment.postgres
     restart: always
     environment:
       POSTGRES_DB: postgres
@@ -9,7 +10,7 @@ services:
       POSTGRES_PASSWORD: postgres #1234
       PGDATA: /var/lib/postgresql/data
     volumes:
-      - db-user:/var/lib/postgresql/data
+      - db-assessment:/var/lib/postgresql/data
       # copy the sql script to create tables 
       # Why in docker-entrypoint-initdb.d/ ?
       # The official PostgreSQL Docker image https://hub.docker.com/_/postgres/ allows us to place SQL files in the /docker-entrypoint-initb.d folder, 
@@ -19,4 +20,4 @@ services:
     ports:
       - "32770:5432"
 volumes:
-  db-user:
+  db-assessment:

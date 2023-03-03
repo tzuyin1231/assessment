@@ -7,12 +7,12 @@ import org.springframework.stereotype.Component;
 @Component
 @Data
 @Entity
-@Table(name = "users")
+@Table(name = "users", schema = "public")
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "userId")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
     private Integer userId;
 
     @Column(name = "nickname")
@@ -21,7 +21,7 @@ public class User {
     @Column(name = "phone")
     private String phone;
 
-    @Column(name = "password")
+    @Column(name = "passwords")
     private String password;
 
 
