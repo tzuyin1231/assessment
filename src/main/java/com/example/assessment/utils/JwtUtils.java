@@ -14,6 +14,7 @@ import java.util.Map;
 public class JwtUtils {
     private static final long EXPIRATIONTIME = 30 * 60 * 1000; // 30 min
     private static final Key key = MacProvider.generateKey(); // 給定一組密鑰，用來解密以及加密使用
+
     public static String generateJwtToken(User user) {//角色身分
         JwtBuilder builder = Jwts.builder()
                 .setId(String.valueOf(user.getUserId()))
