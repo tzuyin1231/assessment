@@ -4,13 +4,20 @@ import com.example.assessment.model.Article;
 import com.example.assessment.model.User;
 import com.example.assessment.repository.ArticleRepository;
 import com.example.assessment.repository.UserRepository;
+import com.example.assessment.utils.JwtUtils;
+import com.example.assessment.utils.PasswordHashingUtils;
 import com.google.common.hash.Hashing;
+import jakarta.annotation.ManagedBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -35,13 +42,24 @@ public class UserController {
         User user = new User();
         user.setNickname(nickname);
         user.setPhone(phone);
-//        copy from https://www.baeldung.com/sha-256-hashing-java
-        String sha256hex = Hashing.sha256()
-                .hashString(password, StandardCharsets.UTF_8)
-                .toString();
-        user.setPassword(sha256hex);
+        user.setPassword(PasswordHashingUtils.getSha256hex(password));
         userRepository.save(user);
         return user;
+    }
+
+    @MutationMapping
+    public User updateUser(
+            @Argument Integer userId,
+            @Argument String nickname
+    ){
+        User aimUser = userRepository.getById(userId);
+        if(aimUser!=null){ //   如果有找到目標
+            aimUser.setNickname(nickname);
+            userRepository.save(aimUser);
+        }else{
+            return null;
+        }
+        return aimUser;
     }
 
     @SchemaMapping

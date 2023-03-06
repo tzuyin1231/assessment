@@ -12,4 +12,5 @@ type User{
 }
 type Mutation {
     addNewUser(nickname: String!, phone: String, password: String):User!
+    updateUser(userId: ID!,nickname:String,phone:String,password:String):User
 }
