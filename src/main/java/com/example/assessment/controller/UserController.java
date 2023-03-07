@@ -50,11 +50,13 @@ public class UserController {
     @MutationMapping
     public User updateUser(
             @Argument Integer userId,
-            @Argument String nickname
+            @Argument String nickname,
+            @Argument String phone
     ){
         User aimUser = userRepository.getById(userId);
         if(aimUser!=null){ //   如果有找到目標
             aimUser.setNickname(nickname);
+            aimUser.setPhone(phone);
             userRepository.save(aimUser);
         }else{
             return null;

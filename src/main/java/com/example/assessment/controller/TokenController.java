@@ -6,17 +6,16 @@ import com.example.assessment.repository.UserRepository;
 import com.example.assessment.utils.JwtUtils;
 import com.example.assessment.utils.PasswordHashingUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class LoginController {
+public class TokenController {
     @Autowired
     UserRepository userRepository;
 
-    @RequestMapping("/users")
+    @RequestMapping("/token")
     public String findById(@RequestBody Login login){
         System.out.println(login);
         String phone = login.getPhone();
@@ -32,7 +31,6 @@ public class LoginController {
         }else{
             return "cannot find the user";
         }
-
     }
 
 }

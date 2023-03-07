@@ -5,11 +5,8 @@ import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.impl.crypto.MacProvider;
-
 import java.security.Key;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 public class JwtUtils {
     private static final long EXPIRATIONTIME = 30 * 60 * 1000; // 30 min
@@ -17,6 +14,7 @@ public class JwtUtils {
 
     public static String generateJwtToken(User user) {//角色身分
         JwtBuilder builder = Jwts.builder()
+//                .claim("GRAPHQL",)
                 .setId(String.valueOf(user.getUserId()))
                 .setSubject(user.getPhone())
                 .signWith(SignatureAlgorithm.HS256, key) // 金鑰
