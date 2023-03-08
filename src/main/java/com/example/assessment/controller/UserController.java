@@ -13,6 +13,7 @@ import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,6 +31,8 @@ public class UserController {
     UserRepository userRepository;
     @Autowired
     ArticleRepository articleRepository;
+    @Autowired
+    public BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @QueryMapping
     public List<User> findAllUsers(){
@@ -42,7 +45,8 @@ public class UserController {
         User user = new User();
         user.setNickname(nickname);
         user.setPhone(phone);
-        user.setPassword(PasswordHashingUtils.getSha256hex(password));
+//        user.setPassword(PasswordHashingUtils.getSha256hex(password));
+        user.setPassword(bCryptPasswordEncoder.encode(password));
         userRepository.save(user);
         return user;
     }

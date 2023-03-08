@@ -66,10 +66,10 @@
 <!--            <artifactId>spring-security-oauth2-resource-server</artifactId>-->
 <!--            <version>6.0.2</version>-->
 <!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.springframework.boot</groupId>-->
-<!--            <artifactId>spring-boot-starter-oauth2-client</artifactId>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-client</artifactId>
+        </dependency>
 <!--        https://www.baeldung.com/spring-security-oauth-resource-server-->
         <dependency>
             <groupId>org.springframework.boot</groupId>

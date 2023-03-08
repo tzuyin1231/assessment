@@ -1,14 +1,24 @@
 package com.example.assessment.configuration.security;
 
+import com.example.assessment.utils.JwtUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -19,26 +29,48 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.DefaultSecurityFilterChain;
+import org.springframework.security.web.SecurityFilterChain;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Collections;
 
 @EnableWebSecurity
-public class ResourceServerConfig{
+@Configuration
+public class ResourceServerConfig {
     private static final Logger log = LoggerFactory.getLogger(ResourceServerConfig.class);
-
+    @Autowired
+    JwtUtils jwtUtils;
     @Autowired
     private RestTemplateBuilder restTemplateBuilder;
+    @Bean
+    public BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+    @Bean
+//    authentication
+    public UserDetailsService userDetailsService(BCryptPasswordEncoder bCryptPasswordEncoder) {
+        System.out.println("authentication設定");
+        UserDetails admin = User.withUsername("admin").password(bCryptPasswordEncoder.encode("adminPass")).roles("admin").build();
+        UserDetails user = User.withUsername("user").password(bCryptPasswordEncoder.encode("userPass")).roles("user").build();
+        System.out.println(bCryptPasswordEncoder.encode("userPass"));
+        return new InMemoryUserDetailsManager(admin,user);
+    }
 
-    protected void configure(HttpSecurity http) throws Exception {
-        System.out.println("ji");
-        http.authorizeRequests()
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        System.out.println("securityFilterChain啟用");
+        http
+                // 關閉CSRF(跨站請求偽造)攻擊的防護，這樣才不會拒絕外部直接對API 發出的請求，例如Postman 與前端
+                .csrf().disable()
+                .authorizeHttpRequests()
                 // 对于 userInfo 这个api 需要 s
                 .requestMatchers("/token").permitAll()
-//                .requestMatchers("/graphql").access("hasAuthority('user.userInfo')")
-                .anyRequest().authenticated()
+                .requestMatchers("/graphql").authenticated()
                 .and()
+//                .formLogin().and().build();
                 // 设置session是无状态的
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -70,15 +102,16 @@ public class ResourceServerConfig{
                     response.setCharacterEncoding(StandardCharsets.UTF_8.name());
                     response.setContentType(MediaType.APPLICATION_JSON.toString());
                     response.getWriter().write("{\"code\":-4,\"message\":\"您无权限访问\"}");
-                })
-
-        ;
+                });
+        DefaultSecurityFilterChain build = http.build();
+        return build;
     }
 
     /**
      * 从request请求中那个地方获取到token
      */
-    private BearerTokenResolver bearerTokenResolver() {
+    @Bean
+    public BearerTokenResolver bearerTokenResolver() {
         DefaultBearerTokenResolver bearerTokenResolver = new DefaultBearerTokenResolver();
         // 设置请求头的参数，即从这个请求头中获取到token
         bearerTokenResolver.setBearerTokenHeaderName(HttpHeaders.AUTHORIZATION);
