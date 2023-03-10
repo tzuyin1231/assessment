@@ -2,14 +2,16 @@ package com.example.assessment.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.NonNull;
 import org.hibernate.annotations.DynamicUpdate;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 @Component
 @Data
 @Entity
 @Table(name = "users", schema = "public")
-public class User {
+public class User{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -5,8 +5,7 @@ import org.springframework.stereotype.Component;
 
 @Data
 @Component
-public class Login {
-    String password;
-    String phone;
+public class Token {
+    Integer userId;
     String token;
 }
