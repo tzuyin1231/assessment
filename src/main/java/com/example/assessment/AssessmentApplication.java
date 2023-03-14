@@ -6,7 +6,6 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestTemplate;
 
-//加上(exclude = { SecurityAutoConfiguration.class })才可以不帶basic authorization
 @SpringBootApplication
 public class AssessmentApplication {
 

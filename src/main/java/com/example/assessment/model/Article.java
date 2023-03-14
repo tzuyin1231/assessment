@@ -12,15 +12,16 @@ import java.time.Instant;
 @Component
 @Data
 @Entity
-@Table(name = "articles")
+@Table(name = "articles",schema="public")
 public class Article {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "article_id")
     private Integer articleId;
 
-    @Column(name = "user_id")
-    private Integer userId;
+//    TODO: 有需要關聯嗎？
+//    @Column(name = "user_id")
+//    private Integer userId;
 
     @Column(name = "article_title")
     private String articleTitle;
@@ -37,5 +38,7 @@ public class Article {
     @Column(name = "update_time")
     private Timestamp updateTime;
 
-
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 }

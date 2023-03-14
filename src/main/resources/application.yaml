@@ -1,24 +1,9 @@
-dbto:
-  datasource: driverClassName:org.postgresql.Driver
 spring:
   datasource:
     url: jdbc:postgresql://localhost:32770/assessment
     username: postgres
     password: postgres
-    security:
-      oauth2:
-#security:
-#  user:
-#    name: user
-#    password: 12345678
-#access-token:
-#  private: ${ACCESS_TOKEN_PRIVATE_KEY_PATH}
-#  public: ${ACCESS_TOKEN_PUBLIC_KEY_PATH}
-#refresh-token:
-#  private: ${REFRESH_TOKEN_PRIVATE_KEY_PATH}
-#  public: ${REFRESH_TOKEN_PUBLIC_KEY_PATH}
-
-  #??GraphQL??
+    driver-class-name: org.postgresql.Driver
   graphql:
     graphiql:
       enabled: true

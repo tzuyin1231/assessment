@@ -2,15 +2,13 @@ type Query{
     findAllUsers:[User]
 }
 type User{
-#    ! 表示not null
-    userId:ID!,
+    userId:Int!,
     nickname:String!,
     phone:String!,
     password:String!,
     articles:[Article]
-
 }
 type Mutation {
     addNewUser(nickname: String!, phone: String, password: String):User!
-    updateUser(userId: ID!,nickname:String,phone:String,password:String):User
+    updateUser(userId: Int!,nickname:String,phone:String,password:String):User
 }

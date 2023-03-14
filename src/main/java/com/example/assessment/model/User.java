@@ -7,6 +7,8 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @Data
 @Entity
@@ -27,6 +29,8 @@ public class User{
     @Column(name = "passwords")
     private String password;
 
+    @OneToMany(mappedBy = "user")
+    private List<Article> articles;
 
 
 }
