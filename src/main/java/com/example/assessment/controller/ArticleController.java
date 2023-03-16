@@ -19,7 +19,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Controller
-//@CrossOrigin(origins = "*")
 public class ArticleController {
     private static final Logger log = LoggerFactory.getLogger(ArticleController.class);
     private ArticleRepository articleRepository;

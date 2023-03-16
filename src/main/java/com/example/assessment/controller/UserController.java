@@ -11,13 +11,11 @@ import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.util.List;
 
 
 @Controller
-//@CrossOrigin(origins = "*")
 public class UserController {
 
     @Autowired
@@ -37,7 +35,6 @@ public class UserController {
         User user = new User();
         user.setNickname(nickname);
         user.setPhone(phone);
-//        user.setPassword(PasswordHashingUtils.getSha256hex(password));
         user.setPassword(bCryptPasswordEncoder.encode(password));
         userRepository.save(user);
         return user;
@@ -50,7 +47,7 @@ public class UserController {
             @Argument String phone
     ) {
         User aimUser = userRepository.findById(userId).orElse(null);
-        if (aimUser != null) { //   如果有找到目標
+        if (aimUser != null) {
             aimUser.setNickname(nickname);
             aimUser.setPhone(phone);
             userRepository.save(aimUser);

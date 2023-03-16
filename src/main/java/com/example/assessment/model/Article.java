@@ -19,10 +19,6 @@ public class Article {
     @Column(name = "article_id")
     private Integer articleId;
 
-//    TODO: 有需要關聯嗎？
-//    @Column(name = "user_id")
-//    private Integer userId;
-
     @Column(name = "article_title")
     private String articleTitle;
 

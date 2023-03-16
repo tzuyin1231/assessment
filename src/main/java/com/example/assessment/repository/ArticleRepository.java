@@ -10,10 +10,8 @@ import java.util.List;
 
 @Repository
 public interface ArticleRepository extends JpaRepository<Article,Integer> {
-//    TODO:作者綽號模糊查詢
     @Query("SELECT a FROM Article a INNER JOIN a.user u WHERE u.nickname LIKE :nickname")
     List<Article> findByNicknameLike(String nickname);
     List<Article> findByArticleTitleLike(String articleTitle);
-
     List<Article> findByUser(User user);
 }
