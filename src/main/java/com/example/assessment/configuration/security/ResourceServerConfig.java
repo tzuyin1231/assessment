@@ -4,6 +4,7 @@ import io.jsonwebtoken.impl.crypto.MacProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -22,12 +23,20 @@ import org.springframework.security.oauth2.server.resource.web.BearerTokenResolv
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 @EnableWebSecurity
 @Configuration
-public class ResourceServerConfig {
+public class ResourceServerConfig{
     private static final Logger log = LoggerFactory.getLogger(ResourceServerConfig.class);
     public static final SecretKey key = MacProvider.generateKey(); // 給定一組密鑰，用來解密以及加密使用
 
@@ -42,12 +51,10 @@ public class ResourceServerConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         log.info("securityFilterChain啟用");
-        http
+        http.cors().and()
                 // TODO: 關閉CSRF(跨站請求偽造)攻擊的防護，這樣才不會拒絕外部直接對API 發出的請求，例如Postman 與前端
                 .csrf().disable()
-                // TODO:
-                .cors().disable()
-                // TODO:
+                // TODO: 禁用 HTTP 基本身份驗證，當客戶端試圖訪問受保護的資源時，Spring Security 將不再提示客戶端提供用戶名和密碼，而是直接返回未授權的響應或重定向到登錄頁面（如果您正在使用其他身份驗證方式）
                 .httpBasic().disable()
                 // TODO: 设置session是无状态的
                 .sessionManagement()
@@ -69,8 +76,6 @@ public class ResourceServerConfig {
                 //TODO: oauth2 认证失败导致的，还有一种可能是非oauth2认证失败导致的，比如没有传递token，但是访问受权限保护的方法
                 .authenticationEntryPoint((request, response, exception) -> {
                 if (exception instanceof AuthenticationException) {
-                    AuthenticationException authenticationException = (AuthenticationException) exception;
-//                    OAuth2Error error = authenticationException.getError();
                     log.info("認證失敗，異常類型:[{}]", exception.getClass().getName());
                 }
                 response.setCharacterEncoding(StandardCharsets.UTF_8.name());
@@ -80,15 +85,13 @@ public class ResourceServerConfig {
             })
             // 认证成功后，无权限访问
             .accessDeniedHandler((request, response, exception) -> {
-                log.info("您無權限訪問，異常類型:[{}]", exception.getClass().getName());
+                log.info("您無權限訪問，異常類型:[{}], {}", exception.getClass().getName(), request.getRequestURI());
                 response.setCharacterEncoding(StandardCharsets.UTF_8.name());
                 response.setContentType(MediaType.APPLICATION_JSON.toString());
                 response.getWriter().write("{\"code\":2,\"message\":\"您無權限訪問\"}");
             })
-
         ;
-        DefaultSecurityFilterChain build = http.build();
-        return build;
+        return http.build();
     }
 
     /**
@@ -127,6 +130,5 @@ public class ResourceServerConfig {
         authoritiesConverter.setAuthoritiesClaimName("scope");
         converter.setJwtGrantedAuthoritiesConverter(authoritiesConverter);
         return converter;
-
     }
 }

@@ -17,7 +17,7 @@ import java.util.List;
 
 
 @Controller
-@CrossOrigin(origins = "*")
+//@CrossOrigin(origins = "*")
 public class UserController {
 
     @Autowired
