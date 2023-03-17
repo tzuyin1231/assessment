@@ -15,6 +15,7 @@
     <description>assessment</description>
     <properties>
         <java.version>17</java.version>
+        <skipTests>true</skipTests>
     </properties>
 
     <dependencies>
@@ -77,15 +78,6 @@
 <!--            <scope>test</scope>-->
         </dependency>
 
-
-        <!--        雜湊-->
-<!--        https://www.baeldung.com/sha-256-hashing-java-->
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>31.0.1-jre</version>
-        </dependency>
-
         <!-- JWT -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
@@ -97,7 +89,6 @@
             <artifactId>jaxb-api</artifactId>
             <version>2.3.0</version>
         </dependency>
-
 
     </dependencies>
 
