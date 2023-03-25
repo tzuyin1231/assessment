@@ -47,13 +47,10 @@ public class TokenController {
          */
         JwtBuilder builder = Jwts.builder()
                 //.setIssuedAt(Timestamp.from(now)) // 簽發時間
-                //.setIssuedAt(Date.from(now.atZone(ZoneId.systemDefault()).toInstant()))
+                .setIssuedAt(Date.from(now))
                 .signWith(SignatureAlgorithm.HS256, ResourceServerConfig.key) // 金鑰
                 // 設置過期時間
-                //.setExpiration(Date.from(now.plus(Duration.ofSeconds(time)).atZone(ZoneId.systemDefault()).toInstant()));
-                .setExpiration(Date.from(now.atZone(ZoneId.systemDefault()).toInstant()));
-        log.info(String.valueOf(Date.from(now.atZone(ZoneId.systemDefault()).toInstant())));
-        log.info(String.valueOf(Date.from(now.plus(Duration.ofSeconds(time)).atZone(ZoneId.systemDefault()).toInstant())));
+                .setExpiration(Date.from(now.plus(time,ChronoUnit.SECONDS)));
         return builder.compact();// 最後使用compact() 進行生成
     }
 }
