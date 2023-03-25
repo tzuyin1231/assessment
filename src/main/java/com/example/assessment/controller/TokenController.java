@@ -12,7 +12,11 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
@@ -32,7 +36,7 @@ public class TokenController {
 
     @RequestMapping("/token/short")
     public String generateShortToken(){
-        String shortToken = generateToken(30);
+        String shortToken = generateToken(1);
         return shortToken;
     }
 
@@ -41,12 +45,15 @@ public class TokenController {
         /**
          * 生成JWT
          */
-        log.info(String.valueOf(ResourceServerConfig.key));
         JwtBuilder builder = Jwts.builder()
-                .setIssuedAt(Date.from(now)) // 簽發時間
+                //.setIssuedAt(Timestamp.from(now)) // 簽發時間
+                //.setIssuedAt(Date.from(now.atZone(ZoneId.systemDefault()).toInstant()))
                 .signWith(SignatureAlgorithm.HS256, ResourceServerConfig.key) // 金鑰
                 // 設置過期時間
-                .setExpiration(Date.from(now.plus(time, ChronoUnit.SECONDS)));
+                //.setExpiration(Date.from(now.plus(Duration.ofSeconds(time)).atZone(ZoneId.systemDefault()).toInstant()));
+                .setExpiration(Date.from(now.atZone(ZoneId.systemDefault()).toInstant()));
+        log.info(String.valueOf(Date.from(now.atZone(ZoneId.systemDefault()).toInstant())));
+        log.info(String.valueOf(Date.from(now.plus(Duration.ofSeconds(time)).atZone(ZoneId.systemDefault()).toInstant())));
         return builder.compact();// 最後使用compact() 進行生成
     }
 }

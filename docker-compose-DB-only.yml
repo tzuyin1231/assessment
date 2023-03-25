@@ -1,0 +1,19 @@
+version: "3.7"
+services:
+  db:
+    image: postgres:13.2-alpine
+    container_name: 'postgres-docker'
+    restart: always
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres #postgres
+      POSTGRES_PASSWORD: postgres #1234
+      PGDATA: /var/lib/postgresql/data
+    volumes:
+      - db-assessment:/var/lib/postgresql/data
+      - ./sean/sql/data:/var/lib/postgresql/data
+      - ./sql/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
+    ports:
+      - "32770:5432"
+volumes:
+  db-assessment:

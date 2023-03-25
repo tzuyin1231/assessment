@@ -15,6 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -31,7 +32,9 @@ public class ArticleController {
 
     @QueryMapping
     public List<Article> findAllArticles() {
+        Instant now = Instant.now();
         log.info("Start findAllArticles");
+        log.info(String.valueOf(Timestamp.from(now)));
         return articleRepository.findAll();
     }
 
@@ -66,6 +69,7 @@ public class ArticleController {
         article.setArticleTitle(articleTitle);
         article.setArticleContent(articleContent);
         article.setCreateTime(Timestamp.valueOf(LocalDateTime.now()));
+        article.setUpdateTime(Timestamp.valueOf(LocalDateTime.now()));
         return articleRepository.save(article);
     }
 
@@ -85,6 +89,8 @@ public class ArticleController {
         if (aimArticle != null) { //   如果有找到目標
             aimArticle.setArticleTitle(articleTitle);
             aimArticle.setArticleContent(articleContent);
+            aimArticle.setUpdateTime(Timestamp.valueOf(LocalDateTime.now()));
+
             articleRepository.save(aimArticle);
         } else {
             return null;

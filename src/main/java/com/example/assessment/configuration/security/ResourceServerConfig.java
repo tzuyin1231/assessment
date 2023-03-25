@@ -12,18 +12,23 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.security.web.SecurityFilterChain;
+
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 
 @EnableWebSecurity
 @Configuration
-public class ResourceServerConfig{
+public class ResourceServerConfig {
     private static final Logger log = LoggerFactory.getLogger(ResourceServerConfig.class);
     public static final SecretKey key = MacProvider.generateKey(); // 給定一組密鑰，用來解密以及加密使用
 
@@ -45,35 +50,38 @@ public class ResourceServerConfig{
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeHttpRequests(
-                        auth ->  auth.requestMatchers( "/token/**").permitAll()
+                        auth -> auth.requestMatchers("/token/**").permitAll()
                                 .requestMatchers("/graphql").authenticated()
                 )
-                // TODO:
-                .oauth2ResourceServer().jwt().decoder(myCustomDecoder())
+                // 設定 OAuth2 的資源伺服器相關配置，使用 JWT 作為 token 的格式，並使用自訂的解碼器來解析 token
+                .oauth2ResourceServer()
+                .jwt().decoder(myCustomDecoder())
+                // 設定 JWT 的授權轉換器，用於從 token 中提取權限信息
                 .jwtAuthenticationConverter(jwtAuthenticationConverter())
 //                TODO:.exceptionHandling
                 .and()
-                // 从request请求那个地方中获取 token
+                // 設定 Bearer Token 的解析器，用於從request請求中解析出 Bearer Token
                 .bearerTokenResolver(bearerTokenResolver())
                 // 此时是认证失败
-                //TODO: response Java class
-                //TODO: oauth2 认证失败导致的，还有一种可能是非oauth2认证失败导致的，比如没有传递token，但是访问受权限保护的方法
+                // TODO: response Java class
+                // TODO: oauth2 认证失败导致的，还有一种可能是非oauth2认证失败导致的，比如没有传递token，但是访问受权限保护的方法
+                // authenticationEntryPoint:設定當請求需要授權但未通過驗證時的響應處理器
                 .authenticationEntryPoint((request, response, exception) -> {
-                if (exception instanceof AuthenticationException) {
-                    log.info("認證失敗，異常類型:[{}]", exception.getClass().getName());
-                }
-                response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-                response.setContentType(MediaType.APPLICATION_JSON.toString());
-                //TODO:
-                response.getWriter().write("{\"code\":1,\"message\":\"您無權限訪問\"}");
-            })
-            // 认证成功后，无权限访问
-            .accessDeniedHandler((request, response, exception) -> {
-                log.info("您無權限訪問，異常類型:[{}], {}", exception.getClass().getName(), request.getRequestURI());
-                response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-                response.setContentType(MediaType.APPLICATION_JSON.toString());
-                response.getWriter().write("{\"code\":2,\"message\":\"您無權限訪問\"}");
-            })
+                    if (exception instanceof AuthenticationException) {
+                        log.info("認證失敗，異常類型:[{}]", exception.getClass().getName());
+                    }
+                    response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+                    response.setContentType(MediaType.APPLICATION_JSON.toString());
+                    //TODO:回錯誤訊息給前端
+                    response.getWriter().write("{\"code\":1,\"message\":\"您無權限訪問\"}");
+                })
+                // accessDeniedHandler:設定當請求的認證被成功解碼後沒有授權訪問時的響應處理器
+                .accessDeniedHandler((request, response, exception) -> {
+                    log.info("您無權限訪問，異常類型:[{}], {}", exception.getClass().getName(), request.getRequestURI());
+                    response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+                    response.setContentType(MediaType.APPLICATION_JSON.toString());
+                    response.getWriter().write("{\"code\":2,\"message\":\"您無權限訪問\"}");
+                })
         ;
         return http.build();
     }
@@ -92,8 +100,10 @@ public class ResourceServerConfig{
     }
 
     private JwtDecoder myCustomDecoder() {
-        log.info("jwtDecoder: " + key);
-        return NimbusJwtDecoder.withSecretKey(key).build();
+
+        NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(key).build();
+        decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(new JwtTimestampValidator(Duration.ofSeconds(10))));
+        return decoder;
     }
 
     /**
