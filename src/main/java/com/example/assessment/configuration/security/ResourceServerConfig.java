@@ -13,8 +13,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
-import org.springframework.security.oauth2.core.OAuth2TokenValidator;
-import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
@@ -40,12 +38,15 @@ public class ResourceServerConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         log.info("securityFilterChain啟用");
-        http.cors().and()
-                // TODO: 關閉CSRF(跨站請求偽造)攻擊的防護，這樣才不會拒絕外部直接對API 發出的請求，例如Postman 與前端
+        http
+                // 允許網頁應用程序從不同的來源網域請求資源
+                .cors()
+                .and()
+                // 關閉CSRF(跨站請求偽造)攻擊的防護，這樣才不會拒絕外部直接對API 發出的請求，例如Postman 與前端
                 .csrf().disable()
-                // TODO: 禁用 HTTP 基本身份驗證，當客戶端試圖訪問受保護的資源時，Spring Security 將不再提示客戶端提供用戶名和密碼，而是直接返回未授權的響應或重定向到登錄頁面（如果您正在使用其他身份驗證方式）
+                // 禁用 HTTP 基本身份驗證，當客戶端試圖訪問受保護的資源時，Spring Security 將不再提示客戶端提供用戶名和密碼，而是直接返回未授權的響應或重定向到登錄頁面（如果您正在使用其他身份驗證方式）
                 .httpBasic().disable()
-                // TODO: 设置session是无状态的
+                // 设置session是无状态的
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
@@ -58,24 +59,23 @@ public class ResourceServerConfig {
                 .jwt().decoder(myCustomDecoder())
                 // 設定 JWT 的授權轉換器，用於從 token 中提取權限信息
                 .jwtAuthenticationConverter(jwtAuthenticationConverter())
-//                TODO:.exceptionHandling
                 .and()
                 // 設定 Bearer Token 的解析器，用於從request請求中解析出 Bearer Token
                 .bearerTokenResolver(bearerTokenResolver())
                 // 此时是认证失败
-                // TODO: response Java class
-                // TODO: oauth2 认证失败导致的，还有一种可能是非oauth2认证失败导致的，比如没有传递token，但是访问受权限保护的方法
-                // authenticationEntryPoint:設定當請求需要授權但未通過驗證時的響應處理器
+                // response Java class
+                // oauth2 认证失败导致的，还有一种可能是非oauth2认证失败导致的，比如没有传递token，但是访问受权限保护的方法
+                // authenticationEntryPoint: 設定當請求需要授權但未通過驗證時的響應處理器
                 .authenticationEntryPoint((request, response, exception) -> {
                     if (exception instanceof AuthenticationException) {
                         log.info("認證失敗，異常類型:[{}]", exception.getClass().getName());
                     }
                     response.setCharacterEncoding(StandardCharsets.UTF_8.name());
                     response.setContentType(MediaType.APPLICATION_JSON.toString());
-                    //TODO:回錯誤訊息給前端
+                    // 回錯誤訊息給前端
                     response.getWriter().write("{\"code\":1,\"message\":\"您無權限訪問\"}");
                 })
-                // accessDeniedHandler:設定當請求的認證被成功解碼後沒有授權訪問時的響應處理器
+                // accessDeniedHandler: 設定當請求的認證被成功解碼後沒有授權訪問時的響應處理器
                 .accessDeniedHandler((request, response, exception) -> {
                     log.info("您無權限訪問，異常類型:[{}], {}", exception.getClass().getName(), request.getRequestURI());
                     response.setCharacterEncoding(StandardCharsets.UTF_8.name());

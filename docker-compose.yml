@@ -6,19 +6,15 @@ services:
     restart: always
     environment:
       POSTGRES_DB: postgres
-      POSTGRES_USER: postgres #postgres
-      POSTGRES_PASSWORD: postgres #1234
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
       PGDATA: /var/lib/postgresql/data
     volumes:
       - db-assessment:/var/lib/postgresql/data
-      # copy the sql script to create tables 
-      # Why in docker-entrypoint-initdb.d/ ?
-      # The official PostgreSQL Docker image https://hub.docker.com/_/postgres/ allows us to place SQL files in the /docker-entrypoint-initb.d folder, 
-      # and the first time the service starts, it will import and execute those SQL files.
+      - ./sql/data:/var/lib/postgresql/data
       - ./sql/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
-      # copy the sql script to fill tables- ./sql/fill_tables.sql:/docker-entrypoint-initdb.d/fill_tables.sql
     ports:
-      - "32769:5432"
+      - "5432:5432"
   backend:
     container_name: 'spring-boot-docker'
     build: ./
@@ -26,7 +22,7 @@ services:
     entrypoint: [ "java","-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar" ]
     restart: always
     ports:
-      - "8889:8080"
+      - "8080:8080"
     depends_on:
       - db
 volumes:
