@@ -6,12 +6,12 @@ token獲取方式的API為HTTP請求，其餘資料則透過GraphQL作為API溝�
 使用postgresQL作為資料庫
 
 啟用server方式:
-        $ cd 到本目錄
-        $ docker-compose up
-        server即啟用完成
+ * $ cd 到本目錄
+ * $ docker-compose up
+ * server即啟用完成
 
 只啟用資料庫方式:
-        確認application.yml檔內資料庫連線設定為 url: jdbc:postgresql://localhost:32770/assessment
-        $ cd 到本目錄
-        $ docker-compose -f docker-compose-DB-only.yml up
-        資料庫即啟用完成，之後可以用自己本機的IDE起後端
+ * 確認application.yml檔內資料庫連線設定為 url: jdbc:postgresql://localhost:32770/assessment
+ * $ cd 到本目錄
+ * $ docker-compose -f docker-compose-DB-only.yml up
+ * 資料庫即啟用完成，之後可以用自己本機的IDE起後端
