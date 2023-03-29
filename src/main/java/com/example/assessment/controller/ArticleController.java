@@ -29,15 +29,13 @@ public class ArticleController {
         this.userRepository = userRepository;
         this.articleRepository = articleRepository;
     }
-
+//    首頁查詢所有文章
     @QueryMapping
     public List<Article> findAllArticles() {
-        Instant now = Instant.now();
-        log.info("Start findAllArticles");
-        log.info(String.valueOf(Timestamp.from(now)));
         return articleRepository.findAll();
     }
 
+//    查詢特定文章ID
     @QueryMapping
     public Article findArticleByArticleId(@Argument Integer articleId){
         return articleRepository.findById(articleId).orElse(null);
@@ -55,8 +53,7 @@ public class ArticleController {
         return articleRepository.findByArticleTitleLike("%"+articleTitle+"%");
     }
 
-
-
+//    新增文章
     @MutationMapping
     public Article addNewArticle(
             @Argument Integer userId,

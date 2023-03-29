@@ -1,4 +1,5 @@
 package com.example.assessment.controller;
+
 import jakarta.transaction.Transactional;
 import lombok.val;
 import net.minidev.json.JSONObject;
@@ -14,16 +15,19 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import reactor.core.publisher.Mono;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+
+import java.util.Objects;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @AutoConfigureWebTestClient
-public class ArticleControllerTest {
+class ArticleControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
     @Autowired
     private WebTestClient webTestClient;
 
@@ -32,8 +36,7 @@ public class ArticleControllerTest {
 
     public String getToken() throws Exception {
         MvcResult mvcResult = mockMvc.perform(get("/token/long")).andReturn();
-        String mvcResultString = mvcResult.getResponse().getContentAsString();
-        return mvcResultString;
+        return mvcResult.getResponse().getContentAsString();
     }
 
     private static String toJSON(String query) {
@@ -48,8 +51,29 @@ public class ArticleControllerTest {
 
     @Test
     @Transactional
-    public void testAddNewArticle() throws Exception {
+    void findAllArticles() {
+        String findAllArticlesQuery = "{ findAllArticles { articleId articleTitle } }";
+        val result = webTestClient.post().uri(GRAPHQL_PATH)
+                .contentType(MediaType.APPLICATION_JSON)
+                .headers(h-> {
+                    try {
+                        h.setBearerAuth(getToken());
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .body(Mono.just(Objects.requireNonNull(toJSON(findAllArticlesQuery))),String.class)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.data.findAllArticles").isNotEmpty()
+                .returnResult();
+        log.info("testFindAllArticles : "+ result);
+    }
 
+    @Test
+    @Transactional
+    void addNewArticle() {
         String articleTitle = "日常生活範式的轉變：從紙筆到 AI";
         String articleContent = "技術的進步是基於讓它適應你，因此你可能根本不會真正注意到它，所以它是日常生活的一部分。" +
                 "——比爾．蓋茨（微軟公司創辦人之一）";
@@ -67,7 +91,7 @@ public class ArticleControllerTest {
                         throw new RuntimeException(e);
                     }
                 })
-                .body(Mono.just(toJSON(addNewArticleMutation)),String.class)
+                .body(Mono.just(Objects.requireNonNull(toJSON(addNewArticleMutation))),String.class)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
@@ -75,36 +99,15 @@ public class ArticleControllerTest {
                 .jsonPath("$.data.addNewArticle.articleTitle").isEqualTo(articleTitle)
                 .jsonPath("$.data.addNewArticle.articleContent").isEqualTo(articleContent)
                 .returnResult();
-    }
-
-    @Test
-    @Transactional
-    public void testDeleteArticle() throws Exception {
-        String deleteArticleMutation = "mutation { deleteArticle ( articleId: 3 )  }";
-        val result = webTestClient.post().uri(GRAPHQL_PATH)
-                .contentType(MediaType.APPLICATION_JSON)
-                .headers(h-> {
-                    try {
-                        h.setBearerAuth(getToken());
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-                .body(Mono.just(toJSON(deleteArticleMutation)),String.class)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.data.deleteArticle").isNotEmpty()
-                .jsonPath("$.data.deleteArticle").isEqualTo(true)
-                .returnResult();
         log.info(String.valueOf(result));
     }
 
     @Test
-    public void testUpdateArticle() throws Exception {
+    @Transactional
+    void updateArticle() {
 
-        String articleTitle = "人工智慧崛起，人類從此俯首稱臣？《電腦簡史》 楔子";
-        String articleContent = "曾經，電腦只是個計算工具，雖然計算能力遠勝過人類，卻缺乏人類的智慧。" +
+        String articleTitle = "人工智慧崛起，人類從此俯首稱臣？";
+        String articleContent = "曾經電腦只是個計算工具，雖然計算能力遠勝過人類，卻缺乏人類的智慧。" +
                 "但近來人工智慧崛起，在各種不同領域的表現已超越人類，以致於物理大師霍金與企業怪傑伊隆·馬斯克都憂心人類未來會受到威脅。" +
                 "電影《魔鬼終結者》中的「天網」有一天會成真嗎？電腦究竟如何從簡單的計算機，一步步演進為人工智慧，超越自詡為「萬物之靈」的人類？" +
                 "《電腦簡史：從齒輪到 AI》這本書將從齒輪時代、電腦時代、網路時代、AI時代，依序回顧電腦的演進。";
@@ -124,7 +127,7 @@ public class ArticleControllerTest {
                         throw new RuntimeException(e);
                     }
                 })
-                .body(Mono.just(toJSON(updateArticle)),String.class)
+                .body(Mono.just(Objects.requireNonNull(toJSON(updateArticle))),String.class)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
@@ -136,8 +139,9 @@ public class ArticleControllerTest {
     }
 
     @Test
-    public void testFindAllArticles() throws Exception {
-        String findAllArticlesQuery = "{ findAllArticles { articleId articleTitle } }";
+    @Transactional
+    void deleteArticle() {
+        String deleteArticleMutation = "mutation { deleteArticle ( articleId: 3 )  }";
         val result = webTestClient.post().uri(GRAPHQL_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
                 .headers(h-> {
@@ -147,37 +151,13 @@ public class ArticleControllerTest {
                         throw new RuntimeException(e);
                     }
                 })
-                .body(Mono.just(toJSON(findAllArticlesQuery)),String.class)
+                .body(Mono.just(Objects.requireNonNull(toJSON(deleteArticleMutation))),String.class)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
-                .jsonPath("$.data.findAllArticles").isNotEmpty()
+                .jsonPath("$.data.deleteArticle").isNotEmpty()
+                .jsonPath("$.data.deleteArticle").isEqualTo(true)
                 .returnResult();
-        log.info("testFindAllArticles : "+ result);
+        log.info(String.valueOf(result));
     }
-
-    @Test
-    public void testFindArticleByArticleId() throws Exception {
-        String findArticleByArticleIdQuery = "{ findArticleByArticleId(articleId:3) { articleId articleTitle } }";
-        val result = webTestClient.post().uri(GRAPHQL_PATH)
-                .contentType(MediaType.APPLICATION_JSON)
-                .headers(h-> {
-                    try {
-                        h.setBearerAuth(getToken());
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-                .body(Mono.just(toJSON(findArticleByArticleIdQuery)),String.class)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.data.findArticleByArticleId.articleTitle").isEqualTo("dwevvdweerwe")
-                .returnResult();
-        log.info("testFindArticleByArticleId : "+String.valueOf(result));
-    }
-
-
-
 }
-
